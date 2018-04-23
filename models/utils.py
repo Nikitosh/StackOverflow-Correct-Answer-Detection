@@ -1,20 +1,51 @@
 import re
 import gensim
 
+import numpy as np
+
 from nltk.corpus import stopwords
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
 stops = set(stopwords.words('english'))
 
 
-def transform_text(text):
+def lower_text(text):
     text = text.lower()
     text = re.sub(r'[^\x00-\x7f]', r' ', text)
     text = gensim.parsing.preprocessing.strip_punctuation2(text)
     text = gensim.parsing.preprocessing.strip_numeric(text)
-    text = gensim.corpora.textcorpus.strip_multiple_whitespaces(text)
-    filtered_words = [word for word in text.split() if word not in stops]
-    filtered_words = gensim.corpora.textcorpus.remove_short(filtered_words, minsize=3)
-    text = ' '.join(filtered_words)
-    text = gensim.corpora.textcorpus.strip_multiple_whitespaces(text)
-    return gensim.parsing.preprocessing.stem_text(text)
+    text = gensim.parsing.preprocessing.strip_multiple_whitespaces(text)
+    return text
 
+
+def transform_text(text):
+    text = lower_text(text)
+    filtered_words = [word for word in text.split() if word not in stops and len(word) >= 3]
+    return ' '.join(filtered_words)
+
+
+def stem_text(text):
+    return gensim.parsing.preprocessing.stem_text(transform_text(text))
+
+
+def print_metrics(y_tests, y_preds):
+    print('Accuracy: {}'.format(accuracy_score(y_tests, y_preds)))
+    print('Precision: {}'.format(precision_score(y_tests, y_preds)))
+    print('Recall: {}'.format(recall_score(y_tests, y_preds)))
+    print('F1: {}'.format(f1_score(y_tests, y_preds)))
+
+
+def transform_sentence_batch_to_vector(word2vec_model, sentences, document_max_num_words, num_features):
+    empty_word = np.zeros(num_features)
+    X = np.zeros((len(sentences), document_max_num_words, num_features))
+    for i in range(len(sentences)):
+        words = sentences[i].split()
+        for j, word in enumerate(words):
+            if j == document_max_num_words:
+                break
+            if word in word2vec_model:
+                X[i, j, :] = word2vec_model[word]
+            else:
+                print(word)
+                X[i, j, :] = empty_word
+    return X
