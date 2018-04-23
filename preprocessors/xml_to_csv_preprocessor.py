@@ -7,9 +7,10 @@ from lxml import etree
 from bs4 import BeautifulSoup
 
 
-class Preprocessor:
+class XmlToCsvPreprocessor:
     QUESTION_ID = 1
     ANSWER_ID = 2
+    QUESTION_SCORE_THRESHOLD = 1
 
     QUESTION_WORDS = frozenset([
         'how',
@@ -52,7 +53,7 @@ class Preprocessor:
 
     @staticmethod
     def is_question(sentence):
-        return sentence[-1] == '?' and re.split(' |\'|,', sentence)[0].lower() in Preprocessor.QUESTION_WORDS
+        return sentence[-1] == '?' and re.split(' |\'|,', sentence)[0].lower() in XmlToCsvPreprocessor.QUESTION_WORDS
 
     @staticmethod
     def process_code(code):
@@ -60,11 +61,11 @@ class Preprocessor:
 
     def get_child_text(self, node):
         name = getattr(node, 'name', None)
-        if name in Preprocessor.IGNORED_TAGS:
+        if name in XmlToCsvPreprocessor.IGNORED_TAGS:
             return ''
-        if name == Preprocessor.CODE_TAG:
+        if name == XmlToCsvPreprocessor.CODE_TAG:
             return self.process_code(self.get_node_text(node))
-        return self.get_node_text(node).replace('"', '')
+        return self.get_node_text(node).replace('"', '').replace('\n', ' ')
 
     def get_node_text(self, node):
         if 'childGenerator' in dir(node):
@@ -79,6 +80,7 @@ class Preprocessor:
         file_name = os.path.splitext(xml_file_name)[0]
 
         accepted_answer_ids = set()
+        questions_with_accepted_answer_ids = set()
         questions = {}
         with open(file_name + '.csv', 'w', newline='', encoding='utf-8') as csv_file:
             writer = csv.writer(csv_file, delimiter=',')
@@ -91,14 +93,16 @@ class Preprocessor:
                 date = elem.get('CreationDate')
                 body = self.process_html_body(elem.get('Body'))
 
-                if type_id == Preprocessor.QUESTION_ID:
+                if type_id == XmlToCsvPreprocessor.QUESTION_ID:
                     questions[id] = [id, date, score, elem.get('Title').replace('"', ''), body]
-                    if elem.get('AcceptedAnswerId') is not None:
+                    if elem.get('AcceptedAnswerId') is not None \
+                            and score >= XmlToCsvPreprocessor.QUESTION_SCORE_THRESHOLD:
                         accepted_answer_ids.add(int(elem.get('AcceptedAnswerId')))
+                        questions_with_accepted_answer_ids.add(id)
 
-                if type_id == Preprocessor.ANSWER_ID:
+                if type_id == XmlToCsvPreprocessor.ANSWER_ID:
                     parent_id = int(elem.get('ParentId'))
-                    if parent_id not in questions or len(body) == 0:
+                    if parent_id not in questions_with_accepted_answer_ids or len(body) == 0:
                         continue
                     is_accepted = int(id in accepted_answer_ids)
                     writer.writerow([id, date, score, body] + questions[parent_id] + [is_accepted])
@@ -108,5 +112,5 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--xml_path', type=str, help='Path to .xml file')
     args = parser.parse_args()
-    preprocessor = Preprocessor()
+    preprocessor = XmlToCsvPreprocessor()
     preprocessor.process(args.xml_path)
