@@ -9,11 +9,11 @@ class FasttextWrapper:
         preprocessor = CsvToFasttextPreprocessor()
         preprocessor.process_train(file_name, data_reader, ids)
         subprocess.call('fasttext supervised -input {} -output {} -lr {} -epoch {}'
-                        .format(file_name, 'fasttext/model/model', lr, epoch))
+                        .format(file_name, 'fasttext/models/models', lr, epoch))
 
     def predict(self, file_name, data_reader, ids):
         preprocessor = CsvToFasttextPreprocessor()
         preprocessor.process_test(file_name, data_reader, ids)
-        output = subprocess.check_output('fasttext predict fasttext/model/model.bin {}'.format(file_name))\
+        output = subprocess.check_output('fasttext predict fasttext/models/models.bin {}'.format(file_name))\
             .decode("utf-8")
         return list(int(label[-1]) for label in output.split('\r\n') if label)
