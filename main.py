@@ -9,6 +9,7 @@ from models.hashing_vectorizer_adapter import HashingVectorizerAdapter
 from models.rnn_word2vec_classifier import RnnWord2VecClassifier
 from models.sklearn_classifier import SKLearnClassifier
 from models.tfidf_vectorizer_adapter import TfIdfVectorizerAdapter
+from word2vec.word2vec_model_trainer import Word2VecModelTrainer
 
 
 def test_hashing_naive_bayes(csv_path):
@@ -62,11 +63,17 @@ def test_rnn_word2vec(csv_path):
     print('RNN Word2Vec classifier')
     classifier.process(csv_path)
 
+
+def train_word2vec(csv_path):
+    trainer = Word2VecModelTrainer()
+    trainer.train(csv_path)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--csv_path', type=str, help='Path to .csv file')
     args = parser.parse_args()
-    test_rnn_word2vec(args.csv_path)
+    train_word2vec(args.csv_path)
+    #test_rnn_word2vec(args.csv_path)
     #test_fasttext(args.csv_path)
     #test_tfidf(args.csv_path)
     #test_hashing_naive_bayes(args.csv_path)
