@@ -57,7 +57,7 @@ class XmlToCsvPreprocessor:
 
     @staticmethod
     def process_code(code):
-        return 'CODE_LEXEM.'
+        return 'CODELEXEM'
 
     def get_child_text(self, node):
         name = getattr(node, 'name', None)
