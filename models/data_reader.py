@@ -1,6 +1,6 @@
 import pandas as pd
 
-from models.utils import transform_text
+from models.utils import transform_text, lower_text
 from sklearn.utils import shuffle
 
 
@@ -44,5 +44,5 @@ class DataReader:
         for X0_i, y0_i, X1_i, y1_i in self._get_data_labels(ids):
             X = pd.concat([X, X0_i, X1_i])
             while not X.empty:
-                yield X['body'].iloc[0]
+                yield lower_text(X['body'].iloc[0])
                 X = X.iloc[1:]

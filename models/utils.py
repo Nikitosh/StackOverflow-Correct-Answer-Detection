@@ -35,8 +35,12 @@ def print_metrics(y_tests, y_preds):
     print('F1: {}'.format(f1_score(y_tests, y_preds)))
 
 
+def generate_unit_vector(dim):
+    vec = np.random.randn(dim)
+    return vec / np.linalg.norm(vec)
+
+
 def transform_sentence_batch_to_vector(word2vec_model, sentences, document_max_num_words, num_features):
-    empty_word = np.zeros(num_features)
     X = np.zeros((len(sentences), document_max_num_words, num_features))
     for i in range(len(sentences)):
         words = sentences[i].split()
@@ -47,5 +51,5 @@ def transform_sentence_batch_to_vector(word2vec_model, sentences, document_max_n
                 X[i, j, :] = word2vec_model[word]
             else:
                 print(word)
-                X[i, j, :] = empty_word
+                X[i, j, :] = generate_unit_vector(num_features)
     return X
