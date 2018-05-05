@@ -1,5 +1,6 @@
 import re
 import gensim
+import os.path
 
 import numpy as np
 
@@ -40,16 +41,24 @@ def generate_unit_vector(dim):
     return vec / np.linalg.norm(vec)
 
 
-def transform_sentence_batch_to_vector(word2vec_model, sentences, document_max_num_words, num_features):
+def transform_sentence_batch_to_vector(word_vectors, sentences, document_max_num_words, num_features):
     X = np.zeros((len(sentences), document_max_num_words, num_features))
     for i in range(len(sentences)):
         words = sentences[i].split()
         for j, word in enumerate(words):
             if j == document_max_num_words:
                 break
-            if word in word2vec_model:
-                X[i, j, :] = word2vec_model[word]
+            if word in word_vectors:
+                X[i, j, :] = word_vectors[word]
             else:
                 print(word)
                 X[i, j, :] = generate_unit_vector(num_features)
     return X
+
+
+def get_word2vec_model_path(csv_file_name):
+    file_name = os.path.splitext(os.path.basename(csv_file_name))[0]
+    if file_name.find('_') != -1:
+        file_name = file_name[file_name.find('_') + 1:]
+    return 'word2vec/models/{}_model.bin'.format(file_name)
+
