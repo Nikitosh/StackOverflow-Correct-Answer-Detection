@@ -7,6 +7,7 @@ from models.data_reader import DataReader
 from models.fasttext_classifier import FasttextClassifier
 from models.hashing_vectorizer_adapter import HashingVectorizerAdapter
 from models.rnn_word2vec_classifier import RnnWord2VecClassifier
+from models.rnn_word2vec_with_question_classifier import RnnWord2VecWithQuestionClassifier
 from models.sklearn_classifier import SKLearnClassifier
 from models.tfidf_vectorizer_adapter import TfIdfVectorizerAdapter
 from word2vec.word2vec_model_trainer import Word2VecModelTrainer
@@ -64,6 +65,12 @@ def test_rnn_word2vec(csv_path):
     classifier.process(csv_path)
 
 
+def test_rnn_word2vec_with_question(csv_path):
+    classifier = RnnWord2VecWithQuestionClassifier()
+    print('RNN Word2Vec with question classifier')
+    classifier.process(csv_path)
+
+
 def train_word2vec(csv_path):
     trainer = Word2VecModelTrainer()
     trainer.train(csv_path)
@@ -73,7 +80,7 @@ if __name__ == '__main__':
     parser.add_argument('--csv_path', type=str, help='Path to .csv file')
     args = parser.parse_args()
     train_word2vec(args.csv_path)
-    #test_rnn_word2vec(args.csv_path)
+    test_rnn_word2vec_with_question(args.csv_path)
     #test_fasttext(args.csv_path)
     #test_tfidf(args.csv_path)
     #test_hashing_naive_bayes(args.csv_path)
