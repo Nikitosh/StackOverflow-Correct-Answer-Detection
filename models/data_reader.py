@@ -1,6 +1,6 @@
 import pandas as pd
 
-from models.utils import transform_text, lower_text
+from models.utils import lower_text
 from sklearn.utils import shuffle
 
 
@@ -46,7 +46,6 @@ class DataReader:
             while not X.empty:
                 yield lower_text(X['body'].iloc[0])
                 X = X.iloc[1:]
-
 
     def get_texts_as_lists(self, ids):
         X = pd.DataFrame()

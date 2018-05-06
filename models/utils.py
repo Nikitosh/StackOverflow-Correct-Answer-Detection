@@ -3,6 +3,7 @@ import gensim
 import os.path
 
 import numpy as np
+from keras.layers import Bidirectional, LSTM
 
 from nltk.corpus import stopwords
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
@@ -61,4 +62,11 @@ def get_word2vec_model_path(csv_file_name):
     if file_name.find('_') != -1:
         file_name = file_name[file_name.find('_') + 1:]
     return 'word2vec/models/{}_model.bin'.format(file_name)
+
+
+def add_lstm_to_model(model, embed_size, bidirectional, input_shape, dropout, return_sequences=False):
+    if bidirectional:
+        model.add(Bidirectional(LSTM(embed_size, dropout=dropout, recurrent_dropout=dropout, return_sequences=return_sequences), input_shape=input_shape))
+    else:
+        model.add(LSTM(embed_size, dropout=dropout, recurrent_dropout=dropout, return_sequences=return_sequences, input_shape=input_shape))
 
