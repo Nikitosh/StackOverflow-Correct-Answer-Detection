@@ -46,3 +46,12 @@ class DataReader:
             while not X.empty:
                 yield lower_text(X['body'].iloc[0])
                 X = X.iloc[1:]
+
+
+    def get_texts_as_lists(self, ids):
+        X = pd.DataFrame()
+        for X0_i, y0_i, X1_i, y1_i in self._get_data_labels(ids):
+            X = pd.concat([X, X0_i, X1_i])
+            while not X.empty:
+                yield lower_text(X['body'].iloc[0]).split()
+                X = X.iloc[1:]

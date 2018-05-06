@@ -25,7 +25,8 @@ class Word2VecModelTrainer:
         data_reader = DataReader(csv_file_name)
         ids = data_reader.get_ids()
         train_ids, test_ids = train_test_split(ids, random_state=0)
-        word2vec_model.build_vocab(data_reader.get_texts(train_ids), update=True)
-        word2vec_model.train(data_reader.get_texts(train_ids), epochs=word2vec_model.iter,
+        word2vec_model.min_count = 3
+        word2vec_model.build_vocab(data_reader.get_texts_as_lists(train_ids), update=True)
+        word2vec_model.train(data_reader.get_texts_as_lists(train_ids), epochs=word2vec_model.iter,
                              total_examples=word2vec_model.corpus_count)
         word2vec_model.save(model_path)
