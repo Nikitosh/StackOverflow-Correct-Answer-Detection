@@ -69,7 +69,7 @@ class XmlToCsvPreprocessor:
 
     def get_node_text(self, node):
         if 'childGenerator' in dir(node):
-            return ''.join([self.get_child_text(child) for child in node.childGenerator()])
+            return ' '.join([self.get_child_text(child) for child in node.childGenerator()])
         return '' if node.isspace() else node
 
     def process_html_body(self, body):
