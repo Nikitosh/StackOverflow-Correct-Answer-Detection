@@ -1,6 +1,6 @@
 import pandas as pd
 
-from models.utils import lower_text
+from utils.utils import lower_text, stem_text, process_html
 from sklearn.utils import shuffle
 
 
@@ -24,7 +24,7 @@ class DataReader:
                   chunk[chunk['is_accepted'] == 1].drop('is_accepted', axis=1), \
                   chunk[chunk['is_accepted'] == 1]['is_accepted']
 
-    def get_data_labels_batch(self, ids, batch_size):
+    def get_raw_data_labels_batch(self, ids, batch_size):
         X = [pd.DataFrame(), pd.DataFrame()]
         y = [[], []]
         for X0_i, y0_i, X1_i, y1_i in self._get_data_labels(ids):
@@ -39,18 +39,18 @@ class DataReader:
                     X[i] = X[i].iloc[size:]
                     y[i] = y[i][size:]
 
-    def get_texts(self, ids):
+    def get_stemmed_texts(self, ids):
         X = pd.DataFrame()
         for X0_i, y0_i, X1_i, y1_i in self._get_data_labels(ids):
             X = pd.concat([X, X0_i, X1_i])
             while not X.empty:
-                yield lower_text(X['body'].iloc[0])
+                yield stem_text(process_html(X['body'].iloc[0]))
                 X = X.iloc[1:]
 
-    def get_texts_as_lists(self, ids):
+    def get_processed_texts_as_lists(self, ids):
         X = pd.DataFrame()
         for X0_i, y0_i, X1_i, y1_i in self._get_data_labels(ids):
             X = pd.concat([X, X0_i, X1_i])
             while not X.empty:
-                yield lower_text(X['body'].iloc[0]).split()
+                yield lower_text(process_html(X['body'].iloc[0])).split()
                 X = X.iloc[1:]
