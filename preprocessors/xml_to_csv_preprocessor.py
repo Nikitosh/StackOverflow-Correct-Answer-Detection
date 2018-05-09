@@ -2,9 +2,12 @@ import os
 import re
 import csv
 import argparse
+from collections import defaultdict
 
 from lxml import etree
 from bs4 import BeautifulSoup
+
+from utils.utils import string_to_timestamp
 
 
 class XmlToCsvPreprocessor:
@@ -35,9 +38,6 @@ class XmlToCsvPreprocessor:
         'had'
     ])
 
-    IGNORED_TAGS = ['del', 'strike', 's']
-    CODE_TAG = 'code'
-
     @staticmethod
     def iterate_xml(xml_file):
         doc = etree.iterparse(xml_file, events=('start', 'end'))
@@ -55,26 +55,8 @@ class XmlToCsvPreprocessor:
     def is_question(sentence):
         return sentence[-1] == '?' and re.split(' |\'|,', sentence)[0].lower() in XmlToCsvPreprocessor.QUESTION_WORDS
 
-    @staticmethod
-    def process_code(code):
-        return 'CODELEXEM'
-
-    def get_child_text(self, node):
-        name = getattr(node, 'name', None)
-        if name in XmlToCsvPreprocessor.IGNORED_TAGS:
-            return ''
-        if name == XmlToCsvPreprocessor.CODE_TAG:
-            return self.process_code(self.get_node_text(node))
-        return self.get_node_text(node).replace('"', '').replace('\n', ' ')
-
-    def get_node_text(self, node):
-        if 'childGenerator' in dir(node):
-            return ' '.join([self.get_child_text(child) for child in node.childGenerator()])
-        return '' if node.isspace() else node
-
-    def process_html_body(self, body):
-        soup = BeautifulSoup(body, 'html.parser')
-        return ' '.join(list(filter(None, [self.get_node_text(node).strip() for node in soup.childGenerator()])))
+    def process_text(self, text):
+        return text.replace('\n', ' ').strip()
 
     def process(self, xml_file_name):
         file_name = os.path.splitext(xml_file_name)[0]
@@ -82,35 +64,51 @@ class XmlToCsvPreprocessor:
         accepted_answer_ids = set()
         questions_with_accepted_answer_ids = set()
         questions = {}
+        answers_times_for_question = defaultdict(list)
+        maximum_answer_score_for_question = {}
+
+        for elem in self.iterate_xml(xml_file_name):
+            id = int(elem.get('Id'))
+            type_id = int(elem.get('PostTypeId'))
+            score = int(elem.get('Score'))
+            date = elem.get('CreationDate')
+            if type_id == XmlToCsvPreprocessor.QUESTION_ID and elem.get('AcceptedAnswerId') is not None \
+                    and score >= XmlToCsvPreprocessor.QUESTION_SCORE_THRESHOLD:
+                accepted_answer_ids.add(int(elem.get('AcceptedAnswerId')))
+                questions_with_accepted_answer_ids.add(id)
+                questions[id] = [id, date, score, self.process_text(elem.get('Title')),
+                                 self.process_text(elem.get('Body'))]
+            elif type_id == XmlToCsvPreprocessor.ANSWER_ID:
+                parent_id = int(elem.get('ParentId'))
+                answers_times_for_question[parent_id].append(string_to_timestamp(date))
+                if parent_id not in maximum_answer_score_for_question \
+                        or maximum_answer_score_for_question[parent_id] < score:
+                    maximum_answer_score_for_question[parent_id] = score
+
+        for id in questions_with_accepted_answer_ids:
+            answers_times_for_question[id].sort()
+
         with open(file_name + '.csv', 'w', newline='', encoding='utf-8') as csv_file:
             writer = csv.writer(csv_file, delimiter=',')
-            writer.writerow(['id', 'creation_date', 'score', 'body', 'question_id', 'question_creation_date',
-                             'question_score', 'question_title', 'question_body', 'is_accepted'])
+            writer.writerow(
+                ['id', 'creation_date', 'score', 'relative_score', 'position', 'relative_position', 'body',
+                 'question_id', 'question_creation_date', 'question_score', 'question_title', 'question_body',
+                 'answers_count', 'is_accepted'])
             for elem in self.iterate_xml(xml_file_name):
                 id = int(elem.get('Id'))
                 type_id = int(elem.get('PostTypeId'))
                 score = int(elem.get('Score'))
                 date = elem.get('CreationDate')
-                body = self.process_html_body(elem.get('Body'))
-
-                if type_id == XmlToCsvPreprocessor.QUESTION_ID:
-                    questions[id] = [id, date, score, elem.get('Title').replace('"', ''), body]
-                    if elem.get('AcceptedAnswerId') is not None \
-                            and score >= XmlToCsvPreprocessor.QUESTION_SCORE_THRESHOLD:
-                        accepted_answer_ids.add(int(elem.get('AcceptedAnswerId')))
-                        questions_with_accepted_answer_ids.add(id)
 
                 if type_id == XmlToCsvPreprocessor.ANSWER_ID:
+                    body = self.process_text(elem.get('Body'))
                     parent_id = int(elem.get('ParentId'))
                     if parent_id not in questions_with_accepted_answer_ids or len(body) == 0:
                         continue
                     is_accepted = int(id in accepted_answer_ids)
-                    writer.writerow([id, date, score, body] + questions[parent_id] + [is_accepted])
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--xml_path', type=str, help='Path to .xml file')
-    args = parser.parse_args()
-    preprocessor = XmlToCsvPreprocessor()
-    preprocessor.process(args.xml_path)
+                    relative_score = score / max(1, maximum_answer_score_for_question[parent_id])
+                    position = answers_times_for_question[parent_id].index(string_to_timestamp(date)) + 1
+                    relative_position = 1 - position / len(answers_times_for_question[parent_id])
+                    writer.writerow([id, date, score, relative_score, position, relative_position, body]
+                                    + questions[parent_id]
+                                    + [len(answers_times_for_question[parent_id]), is_accepted])
