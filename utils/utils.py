@@ -1,4 +1,7 @@
+import datetime
 import re
+import time
+
 import gensim
 import os.path
 
@@ -70,3 +73,6 @@ def add_lstm_to_model(model, embed_size, bidirectional, input_shape, dropout, re
     else:
         model.add(LSTM(embed_size, dropout=dropout, recurrent_dropout=dropout, return_sequences=return_sequences, input_shape=input_shape))
 
+
+def string_to_timestamp(date):
+    return int(time.mktime(datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%f').timetuple()))
