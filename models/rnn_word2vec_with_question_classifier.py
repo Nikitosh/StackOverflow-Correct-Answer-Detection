@@ -21,18 +21,18 @@ class RnnWord2VecWithQuestionClassifier:
 
         self.question_title_model = Sequential()
         question_title_input_shape = (self.question_title_words_count, self.num_features)
-        add_lstm_to_model(self.question_title_model, lstm_embed_size, bidirectional, question_title_input_shape,
+        add_lstm_to_model(self.question_title_model, question_title_input_shape, lstm_embed_size, bidirectional,
                           dropout)
         self.question_title_model.add(Dropout(dropout))
 
         self.question_body_model = Sequential()
         question_body_input_shape = (self.question_body_words_count, self.num_features)
-        add_lstm_to_model(self.question_body_model, lstm_embed_size, bidirectional, question_body_input_shape, dropout)
+        add_lstm_to_model(self.question_body_model, question_body_input_shape, lstm_embed_size, bidirectional, dropout)
         self.question_body_model.add(Dropout(dropout))
 
         self.answer_body_model = Sequential()
         answer_body_input_shape = (self.answer_body_words_count, self.num_features)
-        add_lstm_to_model(self.answer_body_model, lstm_embed_size, bidirectional, answer_body_input_shape, dropout)
+        add_lstm_to_model(self.answer_body_model, answer_body_input_shape, lstm_embed_size, bidirectional, dropout)
         self.answer_body_model.add(Dropout(dropout))
 
         self.model = Sequential()
