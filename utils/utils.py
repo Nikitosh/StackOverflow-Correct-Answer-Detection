@@ -1,16 +1,14 @@
 import datetime
 import logging
+import os.path
 import re
 import time
 
 import gensim
-import os.path
-
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from bs4 import BeautifulSoup
 from keras.layers import Bidirectional, LSTM
-
 from nltk.corpus import stopwords
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_curve, auc, \
     precision_recall_curve, average_precision_score
@@ -19,6 +17,7 @@ stops = set(stopwords.words('english'))
 
 IGNORED_TAGS = ['del', 'strike', 's']
 CODE_TAG = 'code'
+THREAD_FEATURES_COUNT = 2
 
 
 def lower_text(text):
@@ -55,7 +54,7 @@ def draw_roc_curve(y_tests, y_preds):
     plt.ylabel('True Positive Rate')
     plt.title('Receiver operating characteristic example')
     plt.legend(loc='lower right')
-    plt.savefig('plots/roc.png')
+    plt.savefig('outputs/plots/roc-{}.png'.format(get_logging_filename()))
 
 
 def draw_precision_recall_curve(y_tests, y_preds):
@@ -70,7 +69,7 @@ def draw_precision_recall_curve(y_tests, y_preds):
     plt.ylim([0.0, 1.05])
     plt.xlim([0.0, 1.0])
     plt.title('Precision-Recall curve: AP={0:0.2f}'.format(average_precision))
-    plt.savefig('plots/precision_recall.png')
+    plt.savefig('outputs/plots/precision_recall-{}.png'.format(get_logging_filename()))
 
 
 def print_metrics(y_tests, y_preds):
@@ -97,8 +96,8 @@ def transform_sentence_batch_to_vector(word_vectors, sentences, document_max_num
                 break
             if word in word_vectors:
                 X[i, j, :] = word_vectors[word]
-            else:
-                X[i, j, :] = generate_unit_vector(num_features)
+            # else:
+            #     X[i, j, :] = generate_unit_vector(num_features)
     return X
 
 
@@ -109,15 +108,19 @@ def get_word2vec_model_path(csv_file_name):
     return 'word2vec/models/{}_model.bin'.format(file_name)
 
 
-def add_lstm_to_model(model, input_shape, embed_size, bidirectional, dropout, return_sequences=False):
+def get_lstm(embed_size, bidirectional, dropout, return_sequences=False):
     if bidirectional:
-        model.add(Bidirectional(LSTM(embed_size, dropout=dropout, recurrent_dropout=dropout, return_sequences=return_sequences), input_shape=input_shape))
+        return Bidirectional(LSTM(embed_size, dropout=dropout, recurrent_dropout=dropout, return_sequences=return_sequences))
     else:
-        model.add(LSTM(embed_size, dropout=dropout, recurrent_dropout=dropout, return_sequences=return_sequences, input_shape=input_shape))
+        return LSTM(embed_size, dropout=dropout, recurrent_dropout=dropout, return_sequences=return_sequences)
 
 
 def string_to_timestamp(date):
     return int(time.mktime(datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%f').timetuple()))
+
+
+def get_logging_filename():
+    return os.path.splitext(os.path.basename(logging.root.handlers[0].baseFilename))[0]
 
 
 def process_code(code):
