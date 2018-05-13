@@ -7,7 +7,17 @@ from utils.data_reader import DataReader
 from utils.utils import print_metrics
 
 
-def train(classifier, csv_file_name, batch_size=50, epochs=1):
+def test(classifier, data_reader, test_ids, batch_size):
+    y_tests = []
+    y_preds = []
+    for X_test, y_test in data_reader.get_raw_data_labels_batch(set(test_ids), batch_size):
+        y_pred = classifier.predict(X_test)
+        y_tests.extend(y_test)
+        y_preds.extend(y_pred)
+    print_metrics(y_tests, y_preds)
+
+
+def train(classifier, csv_file_name, batch_size=64, epochs=1):
     data_reader = DataReader(csv_file_name)
     ids = data_reader.get_ids()
     train_ids, test_ids = train_test_split(ids, test_size=0.2, random_state=1)
@@ -35,14 +45,5 @@ def train(classifier, csv_file_name, batch_size=50, epochs=1):
         logging.info('Mean validation loss for epoch {}: {}'.format(epoch + 1, np.mean(losses)))
         logging.info('Mean validation accuracy for epoch {}: {}'.format(epoch + 1, np.mean(accuracies)))
 
+        test(classifier, data_reader, test_ids, batch_size)
         classifier.save(epoch + 1)
-
-    y_tests = []
-    y_preds = []
-    for X_test, y_test in data_reader.get_raw_data_labels_batch(set(test_ids), batch_size):
-        y_pred = classifier.predict(X_test)
-        y_tests.extend(y_test)
-        y_preds.extend(y_pred)
-
-    print_metrics(y_tests, y_preds)
-
