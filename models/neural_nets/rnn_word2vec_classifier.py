@@ -33,8 +33,8 @@ class RnnWord2VecClassifier(NeuralNetClassifier):
 
     def transform_input(self, data):
         answer_body = transform_sentence_batch_to_vector(self.word_vectors,
-                                               [lower_text(process_html(X)) for X in data['body']],
-                                               self.answer_body_words_count, self.num_features)
+                                                         [lower_text(process_html(X)) for X in data['body']],
+                                                         self.answer_body_words_count, self.num_features)
         linguistic_features = np.array([self.linguistic_features_calculator.get_normalized_linguistic_features(id, X)
                                         for id, X in zip(data.id, data.body)])
         thread_features = data[['position', 'relative_position']].as_matrix()

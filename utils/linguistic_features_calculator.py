@@ -47,7 +47,7 @@ class LinguisticFeaturesCalculator():
                 LinguisticFeaturesCalculator.get_lowercase_percentage(text),
                 LinguisticFeaturesCalculator.get_uppercase_percentage(text),
                 LinguisticFeaturesCalculator.get_spaces_percentage(text)] \
-                + LinguisticFeaturesCalculator.get_indices(text)
+               + LinguisticFeaturesCalculator.get_indices(text)
 
     @staticmethod
     def get_href_tags_count(soup):

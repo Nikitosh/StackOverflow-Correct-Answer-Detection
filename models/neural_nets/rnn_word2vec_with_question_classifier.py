@@ -40,7 +40,8 @@ class RnnWord2VecWithQuestionClassifier(NeuralNetClassifier):
         answer_body_rnn_features = get_lstm(lstm_embed_size, bidirectional, dropout)(answer_body_input)
         answer_body_rnn_features = Dropout(dropout, name='answer_body_rnn_features')(answer_body_rnn_features)
         rnn_features = merge([question_title_rnn_features, question_body_rnn_features, answer_body_rnn_features],
-                             mode=mode, name='rnn_features')
+                             mode=mode)
+        rnn_features = Dropout(dropout, name='rnn_features')(rnn_features)
         features = concatenate([rnn_features, linguistic_features, thread_features], name='features')
         fc = Dense(hidden_layer_size, activation='relu')(features)
         output = Dense(1, activation='sigmoid', name='output')(fc)
