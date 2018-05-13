@@ -1,8 +1,14 @@
+import logging
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 class TfIdfVectorizerAdapter:
     def __init__(self, **kwargs):
+        if 'ngram_range' in kwargs:
+            logging.info('Tf-Idf with bigrams vectorizer')
+        else:
+            logging.info('Tf-Idf vectorizer')
         self.vectorizer = TfidfVectorizer(**kwargs)
 
     def fit(self, data_reader, ids):

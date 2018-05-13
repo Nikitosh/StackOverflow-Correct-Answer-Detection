@@ -1,3 +1,4 @@
+import logging
 import os
 
 from fasttext.fasttext_wrapper import FasttextWrapper
@@ -5,6 +6,7 @@ from fasttext.fasttext_wrapper import FasttextWrapper
 
 class FasttextClassifier:
     def __init__(self):
+        logging.info('Fasttext classifier')
         self.fasttext = None
 
     def pretrain(self, data_reader, ids):
