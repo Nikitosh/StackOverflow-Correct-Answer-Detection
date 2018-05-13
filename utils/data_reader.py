@@ -1,7 +1,7 @@
 import pandas as pd
+from sklearn.utils import shuffle
 
 from utils.utils import lower_text, stem_text, process_html
-from sklearn.utils import shuffle
 
 
 class DataReader:
