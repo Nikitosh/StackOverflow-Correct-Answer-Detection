@@ -1,11 +1,9 @@
+import csv
 import os
 import re
-import csv
-import argparse
 from collections import defaultdict
 
 from lxml import etree
-from bs4 import BeautifulSoup
 
 from utils.utils import string_to_timestamp
 
