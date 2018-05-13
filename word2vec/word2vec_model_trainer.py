@@ -5,6 +5,7 @@ from gensim.models import Word2Vec
 from utils.utils import get_word2vec_model_path
 from word2vec.wiki_sentences import WikiSentences
 
+
 class Word2VecModelTrainer:
     WIKI_MODEL_PATH = 'word2vec/models/wiki_model.bin'
 
