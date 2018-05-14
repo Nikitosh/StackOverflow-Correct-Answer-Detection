@@ -5,20 +5,21 @@ from utils.utils import lower_text, stem_text, process_html
 
 
 class DataReader:
-    def __init__(self, csv_file_name, chunk_size=10 ** 5):
+    def __init__(self, csv_file_name, column_name, chunk_size=10 ** 5):
         self.csv_file_name = csv_file_name
+        self.column_name = column_name
         self.chunk_size = chunk_size
 
     def get_ids(self):
-        ids = []
+        ids = set()
         for chunk in pd.read_csv(self.csv_file_name, chunksize=self.chunk_size):
-            for id in chunk['id']:
-                ids.append(id)
+            for id in chunk[self.column_name]:
+                ids.add(id)
         return ids
 
     def _get_data_labels(self, ids):
         for chunk in pd.read_csv(self.csv_file_name, chunksize=self.chunk_size):
-            chunk = chunk[chunk['id'].isin(ids)]
+            chunk = chunk[chunk[self.column_name].isin(ids)]
             yield chunk[chunk['is_accepted'] == 0].drop('is_accepted', axis=1), \
                   chunk[chunk['is_accepted'] == 0]['is_accepted'], \
                   chunk[chunk['is_accepted'] == 1].drop('is_accepted', axis=1), \
