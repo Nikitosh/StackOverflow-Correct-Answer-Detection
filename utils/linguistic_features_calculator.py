@@ -16,16 +16,16 @@ class LinguisticFeaturesCalculator():
     calculated_features = {}
 
     def precalculate_maximum_linguistic_features(self, data_reader, ids):
+        logging.info('Beginning precalculating linguistic features')
         for X, y in data_reader.get_raw_data_labels_batch(ids, batch_size=50):
             for id, text in zip(X.id, X.body):
                 self.maximum_features = np.maximum(self.maximum_features, self.get_linguistic_features(id, text))
+        logging.info('Finished precalculating linguistic features')
 
     def get_normalized_linguistic_features(self, id, html_text):
         return self.get_linguistic_features(id, html_text) / self.maximum_features
 
     def get_linguistic_features(self, id, html_text):
-        if id % 1000 == 0:
-            logging.info(str(id))
         if id not in self.calculated_features:
             soup = BeautifulSoup(html_text, 'html.parser')
             text = ' '.join(list(filter(None, [get_node_text(node).strip() for node in soup.childGenerator()])))
