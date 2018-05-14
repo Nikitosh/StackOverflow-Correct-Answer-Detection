@@ -3,13 +3,15 @@ import logging
 from datetime import datetime
 
 from models.neural_nets.rnn_word2vec_with_question_classifier import RnnWord2VecWithQuestionClassifier
-from train import train
+from run import run
+from utils.utils import get_dataset_name
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--csv_path', type=str, help='Path to .csv file')
     args = parser.parse_args()
-    logging.basicConfig(filename='outputs/logs/{}.log'.format(datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')),
+    logging.basicConfig(filename='outputs/logs/{}-{}-rnn_word2vec_with_question.log'.format(
+        datetime.now().strftime('%Y-%m-%dT%H:%M:%S'), get_dataset_name(args.csv_path)),
                         level=logging.INFO)
 
     classifier = RnnWord2VecWithQuestionClassifier(
@@ -22,4 +24,4 @@ if __name__ == '__main__':
         dropout=0.3,
         mode='sum'
     )
-    train(classifier, args.csv_path)
+    run(classifier, args.csv_path)
