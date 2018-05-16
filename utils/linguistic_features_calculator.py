@@ -17,9 +17,14 @@ class LinguisticFeaturesCalculator():
 
     def precalculate_maximum_linguistic_features(self, data_reader, ids):
         logging.info('Beginning precalculating linguistic features')
-        for X, y in data_reader.get_raw_data_labels_batch(ids, batch_size=50):
+        batch_size = 64
+        batch_index = 0
+        size = 2 * len(ids)
+        for X, y in data_reader.get_raw_data_labels_batch(ids, batch_size=batch_size):
             for id, text in zip(X.id, X.body):
                 self.maximum_features = np.maximum(self.maximum_features, self.get_linguistic_features(id, text))
+            batch_index += 1
+            logging.info('Batch #{}/{}'.format(batch_index, size // batch_size))
         logging.info('Finished precalculating linguistic features')
 
     def get_normalized_linguistic_features(self, id, html_text):
