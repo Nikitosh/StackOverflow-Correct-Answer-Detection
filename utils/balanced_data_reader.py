@@ -4,7 +4,7 @@ from sklearn.utils import shuffle
 from utils.utils import lower_text, stem_text, process_html
 
 
-class DataReader:
+class BalancedDataReader:
     def __init__(self, csv_file_name, column_name, chunk_size=10 ** 5):
         self.csv_file_name = csv_file_name
         self.column_name = column_name
