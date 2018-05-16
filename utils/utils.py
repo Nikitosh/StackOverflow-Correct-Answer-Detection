@@ -7,7 +7,8 @@ import time
 import gensim
 import numpy as np
 from bs4 import BeautifulSoup
-from keras.layers import Bidirectional, LSTM
+from gensim.models import Word2Vec
+from keras.layers import Bidirectional, LSTM, Embedding
 from matplotlib import pyplot as plt
 from nltk.corpus import stopwords
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
@@ -40,8 +41,8 @@ def stem_text(text):
     return gensim.parsing.preprocessing.stem_text(transform_text(text))
 
 
-def print_metrics(epoch, y_tests, y_preds):
-    y_preds_binary = np.round(y_preds)
+def print_metrics(epoch, y_tests, y_preds, threshold=0.5):
+    y_preds_binary = list(map(lambda x: x >= threshold, y_preds))
     logging.info('Test accuracy for epoch #{}: {}'.format(epoch, accuracy_score(y_tests, y_preds_binary)))
     logging.info('Test precision for epoch #{}: {}'.format(epoch, precision_score(y_tests, y_preds_binary)))
     logging.info('Test recall for epoch #{}: {}'.format(epoch, recall_score(y_tests, y_preds_binary)))
@@ -55,18 +56,26 @@ def generate_unit_vector(dim):
     return vec / np.linalg.norm(vec)
 
 
-def transform_sentence_batch_to_vector(word_vectors, sentences, document_max_num_words, num_features):
-    X = np.zeros((len(sentences), document_max_num_words, num_features))
-    for i in range(len(sentences)):
-        words = sentences[i].split()
-        for j, word in enumerate(words):
-            if j == document_max_num_words:
-                break
-            if word in word_vectors:
-                X[i, j, :] = word_vectors[word]
-            # else:
-            #     X[i, j, :] = generate_unit_vector(num_features)
-    return X
+def get_embedding(data_reader, ids):
+    word_vectors = Word2Vec.load(get_word2vec_model_path(data_reader.csv_file_name)).wv
+
+    all_words = set()
+    for words in data_reader.get_processed_questions_and_answers_as_lists(ids):
+        all_words.update(words)
+
+    words_count = len(all_words) + 1
+    num_features = 300
+    embedding_weights = np.zeros((words_count, num_features))
+    words_index = {}
+    for index, word in enumerate(all_words):
+        words_index[word] = index + 1
+        if word in word_vectors:
+            embedding_weights[index + 1, :] = word_vectors[word]
+
+    embedding = Embedding(output_dim=num_features, input_dim=words_count, trainable=False)
+    embedding.build((None,))
+    embedding.set_weights([embedding_weights])
+    return embedding, words_index
 
 
 def get_dataset_name(csv_file_name):
