@@ -3,15 +3,15 @@ import logging
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-from utils.data_reader import DataReader
+from utils.imbalanced_data_reader import ImbalancedDataReader
 from utils.utils import print_metrics, draw_accuracy_curve, draw_loss_curve
 
 
 def run(classifier, csv_file_name, batch_size=64, epochs=1):
-    data_reader = DataReader(csv_file_name, 'question_id')
+    data_reader = ImbalancedDataReader(csv_file_name, 'question_id')
     ids = list(data_reader.get_ids())
-    train_ids, test_ids = train_test_split(ids, test_size=0.2, random_state=1)
-    train_ids, validation_ids = train_test_split(train_ids, test_size=0.2, random_state=1)
+    train_ids, test_ids = train_test_split(ids, test_size=0.2, random_state=2)
+    train_ids, validation_ids = train_test_split(train_ids, test_size=0.2, random_state=2)
 
     classifier.pretrain(data_reader, train_ids)
     train_losses_per_epoch = []
@@ -91,4 +91,6 @@ def test(epoch, classifier, data_reader, test_ids, batch_size):
         y_preds.extend(y_pred)
         batch_index += 1
         logging.info('Test batch #{}/{}'.format(batch_index, test_size // batch_size))
-    print_metrics(epoch, y_tests, y_preds)
+    for threshold in [0.4, 0.42, 0.44, 0.46, 0.48, 0.5]:
+        logging.info('threshold={}'.format(threshold))
+        print_metrics(epoch, y_tests, y_preds, threshold)
