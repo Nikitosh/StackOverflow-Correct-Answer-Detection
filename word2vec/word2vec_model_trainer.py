@@ -7,7 +7,7 @@ from word2vec.wiki_sentences import WikiSentences
 
 
 class Word2VecModelTrainer:
-    WIKI_MODEL_PATH = 'word2vec/models/wiki_model.bin'
+    WIKI_MODEL_PATH = 'word2vec/word2vec_models/wiki_model.bin'
 
     def train_on_wiki(self):
         sentences = WikiSentences('wiki-english-20171001')
