@@ -1,10 +1,10 @@
 import csv
 import os
 import re
-from collections import defaultdict
 
 from lxml import etree
 
+from utils.features_calculator import FeaturesCalculator
 from utils.utils import string_to_timestamp
 
 
@@ -62,36 +62,53 @@ class XmlToCsvPreprocessor:
         accepted_answer_ids = set()
         questions_with_accepted_answer_ids = set()
         questions = {}
-        answers_times_for_question = defaultdict(list)
-        maximum_answer_score_for_question = {}
+        features_calculator = FeaturesCalculator()
 
         for elem in self.iterate_xml(xml_file_name):
             id = int(elem.get('Id'))
             type_id = int(elem.get('PostTypeId'))
             score = int(elem.get('Score'))
-            date = elem.get('CreationDate')
+            date = string_to_timestamp(elem.get('CreationDate'))
             if type_id == XmlToCsvPreprocessor.QUESTION_ID and elem.get('AcceptedAnswerId') is not None \
                     and score >= XmlToCsvPreprocessor.QUESTION_SCORE_THRESHOLD:
                 accepted_answer_ids.add(int(elem.get('AcceptedAnswerId')))
                 questions_with_accepted_answer_ids.add(id)
+                answer_count = int(elem.get('AnswerCount'))
                 questions[id] = [id, date, score, self.process_text(elem.get('Title')),
-                                 self.process_text(elem.get('Body'))]
+                                 self.process_text(elem.get('Body')), answer_count]
             elif type_id == XmlToCsvPreprocessor.ANSWER_ID:
                 parent_id = int(elem.get('ParentId'))
-                answers_times_for_question[parent_id].append(string_to_timestamp(date))
-                if parent_id not in maximum_answer_score_for_question \
-                        or maximum_answer_score_for_question[parent_id] < score:
-                    maximum_answer_score_for_question[parent_id] = score
+                body = self.process_text(elem.get('Body'))
+                if parent_id not in questions_with_accepted_answer_ids or len(body) == 0:
+                    continue
+                features_calculator.handle_answer_question(id, questions[parent_id][0], self.process_text(body),
+                                                           date - questions[parent_id][1], score)
 
-        for id in questions_with_accepted_answer_ids:
-            answers_times_for_question[id].sort()
+        features_calculator.process_answers()
 
         with open(file_name + '.csv', 'w', newline='', encoding='utf-8') as csv_file:
             writer = csv.writer(csv_file, delimiter=',')
             writer.writerow(
-                ['id', 'creation_date', 'score', 'relative_score', 'position', 'relative_position', 'body',
-                 'question_id', 'question_creation_date', 'question_score', 'question_title', 'question_body',
-                 'answers_count', 'is_accepted'])
+                ['id', 'body',
+                 'question_id', 'question_date', 'question_score', 'question_title', 'question_body', 'answer_count',
+
+                 'a_count_n1', 'code_count_n1', 'p_count_n1', 'upper_count_n1', 'lower_count_n1', 'space_count_n1',
+                 'length_n1', 'longest_sentence_char_count_n1', 'longest_sentence_word_count_n1', 'average_words_n1',
+                 'average_chars_n1', 'sentence_count_n1', 'ari_n1', 'fre_n1', 'si_n1', 'fkg_n1', 'cli_n1', 'gf_n1',
+                 'lix_n1', 'age_n1', 'score_n1',
+
+                 'a_count_n2', 'code_count_n2', 'p_count_n2', 'upper_count_n2', 'lower_count_n2', 'space_count_n2',
+                 'length_n2', 'longest_sentence_char_count_n2', 'longest_sentence_word_count_n2', 'average_words_n2',
+                 'average_chars_n2', 'sentence_count_n2', 'ari_n2', 'fre_n2', 'si_n2', 'fkg_n2', 'cli_n2', 'gf_n2',
+                 'lix_n2', 'age_n2', 'score_n2',
+
+                 'a_count_pos', 'code_count_pos', 'p_count_pos', 'upper_count_pos', 'lower_count_pos', 'space_count_pos',
+                 'length_pos', 'longest_sentence_char_count_pos', 'longest_sentence_word_count_pos', 'average_words_pos',
+                 'average_chars_pos', 'sentence_count_pos', 'ari_pos', 'fre_pos', 'si_pos', 'fkg_pos', 'cli_pos', 'gf_pos',
+                 'lix_pos', 'age_pos', 'score_pos',
+
+                 'qa_overlap', 'qa_idf_overlap', 'qa_filtered_overlap', 'qa_filtered_idf_overlap',
+                 'is_accepted'])
             for elem in self.iterate_xml(xml_file_name):
                 id = int(elem.get('Id'))
                 type_id = int(elem.get('PostTypeId'))
@@ -104,9 +121,8 @@ class XmlToCsvPreprocessor:
                     if parent_id not in questions_with_accepted_answer_ids or len(body) == 0:
                         continue
                     is_accepted = int(id in accepted_answer_ids)
-                    relative_score = score / max(1, maximum_answer_score_for_question[parent_id])
-                    position = answers_times_for_question[parent_id].index(string_to_timestamp(date)) + 1
-                    relative_position = 1 - position / len(answers_times_for_question[parent_id])
-                    writer.writerow([id, date, score, relative_score, position, relative_position, body]
+                    features = features_calculator.get_features(id, parent_id, body, questions[parent_id][-2])
+                    writer.writerow([id, body]
                                     + questions[parent_id]
-                                    + [len(answers_times_for_question[parent_id]), is_accepted])
+                                    + features
+                                    + [is_accepted])
