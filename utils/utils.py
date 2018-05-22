@@ -7,7 +7,7 @@ import time
 import gensim
 import numpy as np
 from bs4 import BeautifulSoup
-from gensim.models import Word2Vec
+from gensim.models import Word2Vec, FastText
 from keras.layers import Bidirectional, LSTM, Embedding
 from matplotlib import pyplot as plt
 from nltk.corpus import stopwords
@@ -33,12 +33,16 @@ def lower_text(text):
 
 def transform_text(text):
     text = lower_text(text)
-    filtered_words = [word for word in text.split() if word not in stops and len(word) >= 3]
+    filtered_words = [word for word in text.split() if is_stop_word(word) and len(word) >= 3]
     return ' '.join(filtered_words)
 
 
 def stem_text(text):
     return gensim.parsing.preprocessing.stem_text(transform_text(text))
+
+
+def is_stop_word(word):
+    return word in stops
 
 
 def print_metrics(epoch, y_tests, y_preds, threshold=0.5):
@@ -57,7 +61,8 @@ def generate_unit_vector(dim):
 
 
 def get_embedding(data_reader, ids):
-    word_vectors = Word2Vec.load(get_word2vec_model_path(data_reader.csv_file_name)).wv
+    #word_vectors = Word2Vec.load(get_word2vec_model_path(data_reader.csv_file_name)).wv
+    model = FastText.load(get_fasttext_model_path(data_reader.csv_file_name))
 
     all_words = set()
     for words in data_reader.get_processed_questions_and_answers_as_lists(ids):
@@ -69,8 +74,10 @@ def get_embedding(data_reader, ids):
     words_index = {}
     for index, word in enumerate(all_words):
         words_index[word] = index + 1
-        if word in word_vectors:
-            embedding_weights[index + 1, :] = word_vectors[word]
+        if word in model:
+            embedding_weights[index + 1, :] = model[word]
+        else:
+            logging.info(word)
 
     embedding = Embedding(output_dim=num_features, input_dim=words_count, trainable=False)
     embedding.build((None,))
@@ -86,7 +93,11 @@ def get_dataset_name(csv_file_name):
 
 
 def get_word2vec_model_path(csv_file_name):
-    return 'word2vec/models/{}_model.bin'.format(get_dataset_name(csv_file_name))
+    return 'word2vec/word2vec_models/{}_model.bin'.format(get_dataset_name(csv_file_name))
+
+
+def get_fasttext_model_path(csv_file_name):
+    return 'word2vec/fasttext_models/{}_model.bin'.format(get_dataset_name(csv_file_name))
 
 
 def get_lstm(embed_size, bidirectional, dropout, return_sequences=False):

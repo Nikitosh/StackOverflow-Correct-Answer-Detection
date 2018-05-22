@@ -13,7 +13,7 @@ def run(classifier, csv_file_name, batch_size=64, epochs=1):
     train_ids, test_ids = train_test_split(ids, test_size=0.2, random_state=2)
     train_ids, validation_ids = train_test_split(train_ids, test_size=0.2, random_state=2)
 
-    classifier.pretrain(data_reader, train_ids)
+    classifier.pretrain(data_reader, ids)
     train_losses_per_epoch = []
     train_accuracies_per_epoch = []
     validation_losses_per_epoch = []
@@ -91,6 +91,4 @@ def test(epoch, classifier, data_reader, test_ids, batch_size):
         y_preds.extend(y_pred)
         batch_index += 1
         logging.info('Test batch #{}/{}'.format(batch_index, test_size // batch_size))
-    for threshold in [0.4, 0.42, 0.44, 0.46, 0.48, 0.5]:
-        logging.info('threshold={}'.format(threshold))
-        print_metrics(epoch, y_tests, y_preds, threshold)
+    print_metrics(epoch, y_tests, y_preds)
