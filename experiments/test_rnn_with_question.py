@@ -16,12 +16,12 @@ if __name__ == '__main__':
 
     classifier = RnnWord2VecWithQuestionClassifier(
         question_title_words_count=50,
-        question_body_words_count=100,
-        answer_body_words_count=100,
+        question_body_words_count=300,
+        answer_body_words_count=500,
         lstm_embed_size=128,
-        hidden_layer_size=64,
+        hidden_layer_size=128,
         bidirectional=True,
-        dropout=0.3,
-        mode='sum'
+        dropout=0.5,
+        mode='cosine'
     )
-    run(classifier, args.csv_path)
+    run(classifier, args.csv_path, epochs=20)

@@ -5,7 +5,7 @@ from keras.layers import Dropout, Dense, merge, concatenate
 
 from models.neural_nets.neural_net_classifier import NeuralNetClassifier
 from utils.html_utils import process_html
-from utils.nn_utils import get_lstm
+from utils.nn_utils import get_lstm, get_lambda_layer
 from utils.word_utils import lower_text
 
 
@@ -46,7 +46,7 @@ class RnnWord2VecWithQuestionClassifier(NeuralNetClassifier):
         question_body_features = self.transform_text_features(question_body_features)
         answer_body_features = self.embedding(answer_body_input)
         answer_body_features = self.transform_text_features(answer_body_features)
-        rnn_features = merge([question_title_features, question_body_features, answer_body_features], mode=self.mode)
+        rnn_features = get_lambda_layer(self.mode)([question_body_features, answer_body_features])
         rnn_features = Dropout(self.dropout, name='rnn_features')(rnn_features)
         features = concatenate([rnn_features, other_features], name='features')
         fc = Dense(self.hidden_layer_size, activation='relu')(features)
