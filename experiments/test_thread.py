@@ -4,7 +4,7 @@ from datetime import datetime
 
 from models.neural_nets.thread_classifier import ThreadClassifier
 from run import run
-from utils.utils import get_dataset_name
+from utils.other_utils import get_dataset_name
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -14,5 +14,5 @@ if __name__ == '__main__':
                                                                         get_dataset_name(args.csv_path)),
                         level=logging.INFO)
 
-    classifier = ThreadClassifier(hidden_layer_size=64)
+    classifier = ThreadClassifier(hidden_layer_size=256)
     run(classifier, args.csv_path, epochs=20)

@@ -1,7 +1,8 @@
 import pandas as pd
 from sklearn.utils import shuffle
 
-from utils.utils import lower_text, stem_text, process_html
+from utils.html_utils import process_html
+from utils.word_utils import lower_text, stem_text
 
 
 class BalancedDataReader:

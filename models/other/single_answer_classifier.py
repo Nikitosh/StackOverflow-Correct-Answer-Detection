@@ -18,8 +18,8 @@ class SingleAnswerClassifier:
 
     def predict(self, X):
         result = []
-        for position, relative_position in zip(X.position, X.relative_position):
-            result.append(int(position == 1 and relative_position == 0))
+        for answer_count, relative_position in zip(X.answer_count, X.age_pos):
+            result.append(int(answer_count == 1 and relative_position == 0))
         return np.array(result)
 
     def save(self, epoch):

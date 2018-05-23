@@ -2,7 +2,7 @@ import os.path
 
 from gensim.models import FastText
 
-from utils.utils import get_fasttext_model_path
+from utils.other_utils import get_fasttext_model_path
 from word2vec.wiki_sentences import WikiSentences
 
 

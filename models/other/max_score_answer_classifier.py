@@ -18,7 +18,7 @@ class MaxScoreAnswerClassifier:
 
     def predict(self, X):
         result = []
-        for relative_score in X['relative_score']:
+        for relative_score in X['score_n2']:
             result.append(int(relative_score >= 1))
         return np.array(result)
 

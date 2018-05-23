@@ -18,8 +18,8 @@ class FirstAnswerClassifier:
 
     def predict(self, X):
         result = []
-        for position in X['position']:
-            result.append(int(position == 1))
+        for answer_count, relative_position in zip(X.answer_count, X.age_pos):
+            result.append(int(relative_position == 1 - 1 / answer_count))
         return np.array(result)
 
     def save(self, epoch):

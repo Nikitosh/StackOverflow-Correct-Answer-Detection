@@ -2,7 +2,7 @@ import os.path
 
 from gensim.models import Word2Vec
 
-from utils.utils import get_word2vec_model_path
+from utils.other_utils import get_word2vec_model_path
 from word2vec.wiki_sentences import WikiSentences
 
 

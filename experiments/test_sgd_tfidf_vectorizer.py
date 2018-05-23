@@ -7,7 +7,7 @@ from sklearn.linear_model import SGDClassifier
 from models.sklearn.sklearn_classifier import SKLearnClassifier
 from models.sklearn.tfidf_vectorizer_adapter import TfIdfVectorizerAdapter
 from run import run
-from utils.utils import get_dataset_name
+from utils.other_utils import get_dataset_name
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

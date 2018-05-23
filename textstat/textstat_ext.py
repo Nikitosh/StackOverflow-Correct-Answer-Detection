@@ -1,9 +1,11 @@
-from __future__ import print_function
 from __future__ import division
-import string
-import re
+from __future__ import print_function
+
 import math
 import operator
+import re
+import string
+
 import repoze.lru
 from pyphen import Pyphen
 

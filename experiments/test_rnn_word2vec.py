@@ -4,7 +4,7 @@ from datetime import datetime
 
 from models.neural_nets.rnn_word2vec_classifier import RnnWord2VecClassifier
 from run import run
-from utils.utils import get_dataset_name
+from utils.other_utils import get_dataset_name
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -19,6 +19,6 @@ if __name__ == '__main__':
         lstm_embed_size=128,
         hidden_layer_size=64,
         bidirectional=True,
-        dropout=0.1
+        dropout=0.5
     )
     run(classifier, args.csv_path)

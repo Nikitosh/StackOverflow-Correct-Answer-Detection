@@ -4,7 +4,8 @@ import numpy as np
 from bs4 import BeautifulSoup
 
 from textstat.textstat_ext import textstat
-from utils.utils import get_node_text, process_html, is_stop_word
+from utils.html_utils import get_node_text, process_html
+from utils.word_utils import is_stop_word
 
 
 class FeaturesCalculator:

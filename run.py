@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 from utils.imbalanced_data_reader import ImbalancedDataReader
-from utils.utils import print_metrics, draw_accuracy_curve, draw_loss_curve
+from utils.plot_utils import draw_accuracy_curve, draw_loss_curve, print_metrics
 
 
 def run(classifier, csv_file_name, batch_size=64, epochs=1):

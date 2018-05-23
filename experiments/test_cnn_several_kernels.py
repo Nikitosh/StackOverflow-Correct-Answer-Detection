@@ -4,7 +4,7 @@ from datetime import datetime
 
 from models.neural_nets.cnn_several_kernels_classifier import CnnSeveralKernelsClassifier
 from run import run
-from utils.utils import get_dataset_name
+from utils.other_utils import get_dataset_name
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

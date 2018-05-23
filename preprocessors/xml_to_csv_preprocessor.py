@@ -5,7 +5,7 @@ import re
 from lxml import etree
 
 from utils.features_calculator import FeaturesCalculator
-from utils.utils import string_to_timestamp
+from utils.other_utils import string_to_timestamp
 
 
 class XmlToCsvPreprocessor:
@@ -63,12 +63,14 @@ class XmlToCsvPreprocessor:
         questions_with_accepted_answer_ids = set()
         questions = {}
         features_calculator = FeaturesCalculator()
+        handled_answers = set()
 
         for elem in self.iterate_xml(xml_file_name):
             id = int(elem.get('Id'))
             type_id = int(elem.get('PostTypeId'))
             score = int(elem.get('Score'))
             date = string_to_timestamp(elem.get('CreationDate'))
+            print(id)
             if type_id == XmlToCsvPreprocessor.QUESTION_ID and elem.get('AcceptedAnswerId') is not None \
                     and score >= XmlToCsvPreprocessor.QUESTION_SCORE_THRESHOLD:
                 accepted_answer_ids.add(int(elem.get('AcceptedAnswerId')))
@@ -83,6 +85,7 @@ class XmlToCsvPreprocessor:
                     continue
                 features_calculator.handle_answer_question(id, questions[parent_id][0], self.process_text(body),
                                                            date - questions[parent_id][1], score)
+                handled_answers.add(id)
 
         features_calculator.process_answers()
 
@@ -112,14 +115,10 @@ class XmlToCsvPreprocessor:
             for elem in self.iterate_xml(xml_file_name):
                 id = int(elem.get('Id'))
                 type_id = int(elem.get('PostTypeId'))
-                score = int(elem.get('Score'))
-                date = elem.get('CreationDate')
-
-                if type_id == XmlToCsvPreprocessor.ANSWER_ID:
+                print(id)
+                if type_id == XmlToCsvPreprocessor.ANSWER_ID and id in handled_answers:
                     body = self.process_text(elem.get('Body'))
                     parent_id = int(elem.get('ParentId'))
-                    if parent_id not in questions_with_accepted_answer_ids or len(body) == 0:
-                        continue
                     is_accepted = int(id in accepted_answer_ids)
                     features = features_calculator.get_features(id, parent_id, body, questions[parent_id][-2])
                     writer.writerow([id, body]

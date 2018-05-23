@@ -1,6 +1,6 @@
 import numpy as np
 
-from utils.utils import stem_text
+from utils.word_utils import stem_text
 
 
 class SKLearnClassifier:

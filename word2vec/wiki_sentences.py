@@ -1,6 +1,6 @@
 import gensim.downloader as api
 
-from utils.utils import lower_text
+from utils.word_utils import lower_text
 
 
 class WikiSentences:
