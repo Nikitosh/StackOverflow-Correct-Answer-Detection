@@ -3,8 +3,8 @@ import logging
 import numpy as np
 from keras.utils import plot_model
 
-from utils.other_utils import get_logging_filename
 from utils.nn_utils import get_embedding
+from utils.other_utils import get_logging_filename
 from word2vec.fasttext_model_trainer import FasttextModelTrainer
 
 

@@ -1,7 +1,7 @@
 import logging
 
 from keras import Input, Model
-from keras.layers import Dropout, Dense, merge, concatenate
+from keras.layers import Dropout, Dense, concatenate
 
 from models.neural_nets.neural_net_classifier import NeuralNetClassifier
 from utils.html_utils import process_html
@@ -35,13 +35,10 @@ class RnnWord2VecWithQuestionClassifier(NeuralNetClassifier):
         self.lstm_layer = get_lstm(self.lstm_embed_size, self.bidirectional, self.dropout)
         self.dropout_layer = Dropout(self.dropout)
 
-        question_title_input = Input(shape=(self.question_title_words_count,), name='question_title_input')
         question_body_input = Input(shape=(self.question_body_words_count,), name='question_body_input')
         answer_body_input = Input(shape=(self.answer_body_words_count,), name='answer_body_input')
         other_features = Input(shape=(NeuralNetClassifier.OTHER_FEATURES_COUNT,), name='other_features')
 
-        question_title_features = self.embedding(question_title_input)
-        question_title_features = self.transform_text_features(question_title_features)
         question_body_features = self.embedding(question_body_input)
         question_body_features = self.transform_text_features(question_body_features)
         answer_body_features = self.embedding(answer_body_input)
@@ -52,9 +49,7 @@ class RnnWord2VecWithQuestionClassifier(NeuralNetClassifier):
         fc = Dense(self.hidden_layer_size, activation='relu')(features)
         output = Dense(1, activation='sigmoid', name='output')(fc)
 
-        self.model = Model(
-            inputs=[question_title_input, question_body_input, answer_body_input, other_features],
-            outputs=[output])
+        self.model = Model(nputs=[question_body_input, answer_body_input, other_features], outputs=[output])
         self.compile_model()
 
     def transform_text_features(self, text_input):
@@ -62,9 +57,6 @@ class RnnWord2VecWithQuestionClassifier(NeuralNetClassifier):
         return self.dropout_layer(text_features)
 
     def transform_input(self, data):
-        question_title = self.transform_sentence_batch_to_vector(
-            [lower_text(process_html(X)) for X in data['question_title']],
-            self.question_title_words_count)
         question_body = self.transform_sentence_batch_to_vector(
             [lower_text(process_html(X)) for X in data['question_body']],
             self.question_body_words_count)
@@ -72,4 +64,4 @@ class RnnWord2VecWithQuestionClassifier(NeuralNetClassifier):
                                                               self.answer_body_words_count)
         other_features = self.get_other_features(data)
 
-        return [question_title, question_body, answer_body, other_features]
+        return [question_body, answer_body, other_features]
