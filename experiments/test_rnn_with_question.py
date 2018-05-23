@@ -2,7 +2,7 @@ import argparse
 import logging
 from datetime import datetime
 
-from models.neural_nets.rnn_word2vec_with_question_classifier import RnnWord2VecWithQuestionClassifier
+from models.neural_nets.rnn_with_question_classifier import RnnWord2VecWithQuestionClassifier
 from run import run
 from utils.other_utils import get_dataset_name
 

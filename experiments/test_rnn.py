@@ -2,7 +2,7 @@ import argparse
 import logging
 from datetime import datetime
 
-from models.neural_nets.rnn_word2vec_classifier import RnnWord2VecClassifier
+from models.neural_nets.rnn_classifier import RnnWord2VecClassifier
 from run import run
 from utils.other_utils import get_dataset_name
 

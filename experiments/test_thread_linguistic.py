@@ -15,4 +15,4 @@ if __name__ == '__main__':
                                                                    get_dataset_name(args.csv_path)), level=logging.INFO)
 
     classifier = ThreadLinguisticClassifier(hidden_layer_size=256)
-    run(classifier, args.csv_path, epochs=20)
+    run(classifier, args.csv_path, epochs=100)
