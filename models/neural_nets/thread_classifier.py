@@ -27,5 +27,8 @@ class ThreadClassifier(NeuralNetClassifier):
         self.create_model()
 
     def transform_input(self, data):
-        thread_features = data[['answer_count', 'age_pos']].as_matrix()
+        #thread_features = data[['answer_count', 'age_pos']].as_matrix()
+        thread_features = data[['answer_count', 'age_n1', 'score_n1', 'age_n2', 'score_n2', 'age_pos',
+                                'score_pos', 'qa_overlap', 'qa_idf_overlap', 'qa_filtered_overlap',
+                                'qa_filtered_idf_overlap']].as_matrix()
         return [thread_features]

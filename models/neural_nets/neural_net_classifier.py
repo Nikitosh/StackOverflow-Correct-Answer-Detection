@@ -10,7 +10,7 @@ from word2vec.fasttext_model_trainer import FasttextModelTrainer
 
 class NeuralNetClassifier:
     OTHER_FEATURES_COUNT = 65
-    THREAD_FEATURES_COUNT = 2
+    THREAD_FEATURES_COUNT = 11
     LINGUISTIC_FEATURES_COUNT = 61
 
     def __init__(self):

@@ -9,7 +9,7 @@ from utils.nn_utils import get_lstm
 from utils.word_utils import lower_text
 
 
-class RnnWord2VecClassifier(NeuralNetClassifier):
+class RnnClassifier(NeuralNetClassifier):
     def __init__(self, answer_body_words_count, lstm_embed_size, hidden_layer_size, bidirectional, dropout):
         super().__init__()
         logging.info('RNN Word2Vec classifier')

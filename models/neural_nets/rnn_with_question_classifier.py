@@ -9,17 +9,16 @@ from utils.nn_utils import get_lstm, get_lambda_layer
 from utils.word_utils import lower_text
 
 
-class RnnWord2VecWithQuestionClassifier(NeuralNetClassifier):
-    def __init__(self, question_title_words_count, question_body_words_count, answer_body_words_count, lstm_embed_size,
+class RnnWithQuestionClassifier(NeuralNetClassifier):
+    def __init__(self, question_body_words_count, answer_body_words_count, lstm_embed_size,
                  hidden_layer_size, bidirectional, dropout, mode):
         super().__init__()
         logging.info('RNN Word2Vec with question classifier')
         logging.info(
-            'question_title_words_count = {}, question_body_words_count = {}, answer_body_words_count = {}, lstm_embed_size = {}, hidden_layer_size = {}, bidirectional = {}, dropout = {}, mode = {}'.format(
-                question_title_words_count, question_body_words_count, answer_body_words_count, lstm_embed_size,
+            'question_body_words_count = {}, answer_body_words_count = {}, lstm_embed_size = {}, hidden_layer_size = {}, bidirectional = {}, dropout = {}, mode = {}'.format(
+                question_body_words_count, answer_body_words_count, lstm_embed_size,
                 hidden_layer_size, bidirectional, dropout, mode))
 
-        self.question_title_words_count = question_title_words_count
         self.question_body_words_count = question_body_words_count
         self.answer_body_words_count = answer_body_words_count
         self.lstm_embed_size = lstm_embed_size
@@ -49,7 +48,7 @@ class RnnWord2VecWithQuestionClassifier(NeuralNetClassifier):
         fc = Dense(self.hidden_layer_size, activation='relu')(features)
         output = Dense(1, activation='sigmoid', name='output')(fc)
 
-        self.model = Model(nputs=[question_body_input, answer_body_input, other_features], outputs=[output])
+        self.model = Model(inputs=[question_body_input, answer_body_input, other_features], outputs=[output])
         self.compile_model()
 
     def transform_text_features(self, text_input):

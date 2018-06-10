@@ -57,7 +57,7 @@ class CnnOnlyClassifier(NeuralNetClassifier):
             text_features = self.maxpool_layers[i](text_features)
             convolutions.append(text_features)
         features = convolutions[0] if len(self.convolution_layers) == 1 else self.concatenate_layer(convolutions)
-        return self.dropout_layer(features)
+        return features
 
     def transform_input(self, data):
         question_body = self.transform_sentence_batch_to_vector(
