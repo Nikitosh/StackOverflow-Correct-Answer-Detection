@@ -2,7 +2,7 @@ import argparse
 import logging
 from datetime import datetime
 
-from models.neural_nets.rnn_classifier import RnnWord2VecClassifier
+from models.neural_nets.rnn_classifier import RnnClassifier
 from run import run
 from utils.other_utils import get_dataset_name
 
@@ -14,11 +14,11 @@ if __name__ == '__main__':
         datetime.now().strftime('%Y-%m-%dT%H:%M:%S'), get_dataset_name(args.csv_path)),
         level=logging.INFO)
 
-    classifier = RnnWord2VecClassifier(
-        answer_body_words_count=100,
+    classifier = RnnClassifier(
+        answer_body_words_count=300,
         lstm_embed_size=128,
-        hidden_layer_size=64,
+        hidden_layer_size=128,
         bidirectional=True,
         dropout=0.5
     )
-    run(classifier, args.csv_path)
+    run(classifier, args.csv_path, epochs=100)

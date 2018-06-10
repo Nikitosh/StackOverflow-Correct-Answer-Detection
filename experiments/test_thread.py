@@ -15,4 +15,4 @@ if __name__ == '__main__':
                         level=logging.INFO)
 
     classifier = ThreadClassifier(hidden_layer_size=256)
-    run(classifier, args.csv_path, epochs=20)
+    run(classifier, args.csv_path, epochs=200)
