@@ -20,3 +20,9 @@ class SKLearnClassifier:
     def predict(self, X):
         X = self.vectorizer.transform(stem_text(text) for text in X['body'])
         return self.classifier.predict(X)
+
+    def evaluate(self, X, y):
+        return [0, 0]
+
+    def save(self, epoch):
+        pass
