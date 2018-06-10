@@ -1,5 +1,6 @@
 import logging
 
+import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.metrics import roc_curve, auc, precision_recall_curve, average_precision_score, accuracy_score, \
     precision_score, recall_score, f1_score
@@ -15,7 +16,7 @@ def draw_roc_curve(y_tests, y_preds):
     lw = 2
     plt.plot(fpr, tpr, color='darkorange', lw=lw, label='ROC curve (area = %0.2f)' % auc(fpr, tpr))
     plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
-    plt.xlim([0.0, 1.0])
+    plt.xlim([-0.005, 1.0])
     plt.ylim([0.0, 1.05])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
@@ -60,6 +61,28 @@ def draw_loss_curve(train_losses, validation_losses):
     plt.title('Model loss')
     plt.legend(['train', 'validation'], loc='upper left')
     plt.savefig('outputs/plots/loss-{}.png'.format(get_logging_filename()))
+
+
+def draw_lens_histogram(lens, category, name):
+    bins = np.arange(0, 5000, 100)
+    plt.figure()
+    plt.hist(np.clip(lens, bins[0], bins[-1]), 25)
+    plt.xlabel('Длина текста {}а'.format(category))
+    plt.ylabel('Количество {}ов'.format(category))
+    plt.savefig('outputs/plots/length_distributions/{}.png'.format(name), bbox_inches='tight')
+
+
+def draw_histogram(data_correct, data_incorrect, name):
+    plt.figure()
+    bins = np.arange(0, 125, 5)
+    data_correct = np.clip(data_correct, bins[0], bins[-1])
+    data_incorrect = np.clip(data_incorrect, bins[0], bins[-1])
+    plt.hist(data_correct, bins=bins, density=True, color='g', alpha=0.6, label='Правильные')
+    plt.hist(data_incorrect, bins=bins, density=True, color='r', alpha=0.3, label='Неправильные')
+    plt.xlabel('{} индекс'.format(name))
+    plt.ylabel('Доля ответов')
+    plt.legend()
+    plt.savefig('outputs/plots/correct_incorrect/{}.png'.format(name), bbox_inches='tight')
 
 
 def print_metrics(epoch, y_tests, y_preds, threshold=0.5):

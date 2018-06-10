@@ -18,7 +18,7 @@ def lower_text(text):
 
 def transform_text(text):
     text = lower_text(text)
-    filtered_words = [word for word in text.split() if is_stop_word(word) and len(word) >= 3]
+    filtered_words = [word for word in text.split() if not is_stop_word(word) and len(word) >= 3]
     return ' '.join(filtered_words)
 
 

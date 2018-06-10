@@ -53,7 +53,11 @@ class FeaturesCalculator:
             features_relative_positions.append(answers[i].index(features[i]) / len(answers[i]))
         overlap_features = self._calculate_overlap_features(process_html(answer_html_text),
                                                             process_html(question_html_text))
-        return normalized_features.tolist() + normalized_by_question_features + features_relative_positions + overlap_features
+        return features \
+               + normalized_features.tolist() \
+               + normalized_by_question_features \
+               + features_relative_positions \
+               + overlap_features
 
     def _calculate_features(self, id, html_text, age, score):
         if id not in self.calculated_features:
