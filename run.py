@@ -10,8 +10,8 @@ from utils.plot_utils import draw_accuracy_curve, draw_loss_curve, print_metrics
 def run(classifier, csv_file_name, batch_size=64, epochs=1):
     data_reader = ImbalancedDataReader(csv_file_name, 'question_id')
     ids = list(data_reader.get_ids())
-    train_ids, test_ids = train_test_split(ids, test_size=0.2, random_state=2)
-    train_ids, validation_ids = train_test_split(train_ids, test_size=0.2, random_state=2)
+    train_ids, test_ids = train_test_split(ids, test_size=0.2, random_state=1)
+    train_ids, validation_ids = train_test_split(train_ids, test_size=0.2, random_state=1)
 
     classifier.pretrain(data_reader, ids)
     train_losses_per_epoch = []
