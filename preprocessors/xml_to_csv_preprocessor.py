@@ -95,6 +95,11 @@ class XmlToCsvPreprocessor:
                 ['id', 'body',
                  'question_id', 'question_date', 'question_score', 'question_title', 'question_body', 'answer_count',
 
+                 'a_count', 'code_count', 'p_count', 'upper_count', 'lower_count', 'space_count',
+                 'length', 'longest_sentence_char_count', 'longest_sentence_word_count', 'average_words',
+                 'average_chars', 'sentence_count', 'ari', 'fre', 'si', 'fkg', 'cli', 'gf',
+                 'lix', 'age', 'score',
+
                  'a_count_n1', 'code_count_n1', 'p_count_n1', 'upper_count_n1', 'lower_count_n1', 'space_count_n1',
                  'length_n1', 'longest_sentence_char_count_n1', 'longest_sentence_word_count_n1', 'average_words_n1',
                  'average_chars_n1', 'sentence_count_n1', 'ari_n1', 'fre_n1', 'si_n1', 'fkg_n1', 'cli_n1', 'gf_n1',
